@@ -1,0 +1,48 @@
+rules_version = '2';
+
+// Deploy with: firebase deploy --only firestore:rules
+// This is the server-side enforcement that the Admin Dashboard's client-side
+// role check (src/app/admin/page.tsx) depends on — the client check alone
+// is only UX, this is the actual security boundary.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function isAdmin() {
+      return isSignedIn() &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == "admin";
+    }
+
+    // Each user can read/update their own profile (progress, favorites,
+    // certificates). Admins can read any profile. Nobody can set their own
+    // role to "admin" — that field is admin-managed only.
+    match /users/{uid} {
+      allow read: if isOwner(uid) || isAdmin();
+      allow create: if isOwner(uid) && request.resource.data.role == "student";
+      allow update: if isOwner(uid) && request.resource.data.role == resource.data.role
+                    || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Course catalog: readable by anyone (even signed-out, for the public
+    // course library), writable only by admins.
+    match /courses/{courseId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // Contact form submissions: anyone can create, only admins can read/list.
+    match /messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}
