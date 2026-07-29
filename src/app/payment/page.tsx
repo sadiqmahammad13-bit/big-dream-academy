@@ -6,8 +6,28 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardShell from "@/components/DashboardShell";
 
 const plans = [
-  { id: "starter", name: "Starter", price: "₦2,000", period: "/month", perks: ["All 7 courses", "Certificates", "Downloads"] },
-  { id: "annual", name: "Annual", price: "₦15,000", period: "/year", perks: ["Everything in Starter", "2 months free", "Priority support"], featured: true },
+  {
+    id: "starter",
+    name: "Starter",
+    price: "₦1,000",
+    period: "",
+    perks: ["1 course", "1 eBook", "Certificate"],
+  },
+  {
+    id: "standard",
+    name: "Standard",
+    price: "₦2,000",
+    period: "",
+    perks: ["3 courses", "eBooks included", "Certificate", "Downloads"],
+    featured: true,
+  },
+  {
+    id: "premium",
+    name: "Premium",
+    price: "₦5,000",
+    period: "",
+    perks: ["All courses", "All eBooks", "Lifetime updates", "Premium support"],
+  },
 ];
 
 export default function PaymentPage() {
@@ -21,7 +41,7 @@ export default function PaymentPage() {
 }
 
 function PaymentContent() {
-  const [selected, setSelected] = useState("starter");
+  const [selected, setSelected] = useState("standard");
   const [processing, setProcessing] = useState(false);
   const [done, setDone] = useState(false);
 
@@ -42,9 +62,9 @@ function PaymentContent() {
   return (
     <div className="animate-rise">
       <h1 className="font-display text-2xl font-bold text-bone">Billing</h1>
-      <p className="mt-1 text-smoke">Choose a plan to unlock every course and certificate.</p>
+      <p className="mt-1 text-smoke">Choose a plan to unlock courses and certificates.</p>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {plans.map((plan) => (
           <button
             key={plan.id}
@@ -55,7 +75,7 @@ function PaymentContent() {
           >
             {plan.featured && (
               <span className="absolute -top-3 right-6 rounded-full bg-gold-green px-3 py-0.5 text-[11px] font-semibold text-ink-950">
-                Best value
+                Mafi shahara
               </span>
             )}
             <p className="font-display text-base font-semibold text-bone">{plan.name}</p>
@@ -89,7 +109,7 @@ function PaymentContent() {
             ? "Payment confirmed ✓"
             : processing
             ? "Processing…"
-            : `Pay ${plans.find((p) => p.id === selected)?.price}${plans.find((p) => p.id === selected)?.period}`}
+            : `Pay ${plans.find((p) => p.id === selected)?.price}`}
         </button>
       </div>
     </div>
