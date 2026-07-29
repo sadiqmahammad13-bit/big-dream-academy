@@ -6,8 +6,8 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardShell from "@/components/DashboardShell";
 
 const plans = [
-  { id: "monthly", name: "Monthly", price: "$19", period: "/month", perks: ["All 7 courses", "Certificates", "Downloads"] },
-  { id: "annual", name: "Annual", price: "$149", period: "/year", perks: ["Everything in Monthly", "2 months free", "Priority support"], featured: true },
+  { id: "starter", name: "Starter", price: "₦2,000", period: "/month", perks: ["All 7 courses", "Certificates", "Downloads"] },
+  { id: "annual", name: "Annual", price: "₦15,000", period: "/year", perks: ["Everything in Starter", "2 months free", "Priority support"], featured: true },
 ];
 
 export default function PaymentPage() {
@@ -21,13 +21,17 @@ export default function PaymentPage() {
 }
 
 function PaymentContent() {
-  const [selected, setSelected] = useState("annual");
+  const [selected, setSelected] = useState("starter");
   const [processing, setProcessing] = useState(false);
   const [done, setDone] = useState(false);
 
-  // Placeholder checkout handler — swap for a real gateway call
-  // (Stripe Checkout Session, Paystack, Flutterwave, etc.) on your backend.
-  // Never handle raw card numbers directly in the frontend.
+  // Placeholder checkout handler — swap for a real Paystack or Flutterwave
+  // call. Both support NGN directly and are the standard choice for
+  // Nigerian founders (unlike Stripe, which isn't available in Nigeria).
+  // Paystack: https://paystack.com/docs/payments/accept-payments
+  // Flutterwave: https://developer.flutterwave.com/docs
+  // Never handle raw card numbers directly in this frontend — both
+  // providers give you a hosted checkout/inline popup that does that part.
   async function handleCheckout() {
     setProcessing(true);
     await new Promise((r) => setTimeout(r, 1200));
@@ -73,27 +77,20 @@ function PaymentContent() {
       <div className="card mt-8 max-w-md p-6">
         <h2 className="font-display text-sm font-semibold text-bone">Payment details</h2>
         <p className="mt-1 flex items-center gap-1.5 text-xs text-smoke">
-          <ShieldCheck className="h-3.5 w-3.5 text-grow-400" /> Payments are securely processed — card details never touch our servers.
+          <ShieldCheck className="h-3.5 w-3.5 text-grow-400" /> Payments are securely processed via Paystack or Flutterwave — card details never touch our servers.
         </p>
 
-        {/* Replace this block with your gateway's hosted card element */}
-        <div className="mt-4 flex flex-col gap-3">
-          <input className="input-field" placeholder="Card number" disabled />
-          <div className="grid grid-cols-2 gap-3">
-            <input className="input-field" placeholder="MM / YY" disabled />
-            <input className="input-field" placeholder="CVC" disabled />
-          </div>
-        </div>
-
-        {done ? (
-          <p className="mt-5 flex items-center gap-2 text-sm text-grow-400">
-            <Check className="h-4 w-4" /> Payment confirmed — enjoy full access.
-          </p>
-        ) : (
-          <button onClick={handleCheckout} disabled={processing} className="btn-gold mt-5 w-full disabled:opacity-60">
-            {processing ? "Processing…" : `Subscribe — ${plans.find((p) => p.id === selected)?.price}${plans.find((p) => p.id === selected)?.period}`}
-          </button>
-        )}
+        {/* Replace this button with Paystack's inline popup or a Flutterwave
+            hosted checkout redirect. Both take the amount + plan and return
+            a success callback you can use to update the user's subscription
+            status in Firestore. */}
+        <button onClick={handleCheckout} disabled={processing} className="btn-gold mt-5 w-full disabled:opacity-60">
+          {done
+            ? "Payment confirmed ✓"
+            : processing
+            ? "Processing…"
+            : `Pay ${plans.find((p) => p.id === selected)?.price}${plans.find((p) => p.id === selected)?.period}`}
+        </button>
       </div>
     </div>
   );
