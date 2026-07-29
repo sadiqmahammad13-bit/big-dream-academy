@@ -52,47 +52,6 @@ export const courses: Course[] = [
     ],
   },
   {
-    id: "chatgpt-masterclass",
-    title: "ChatGPT Masterclass",
-    tagline: "Go from casual user to power user",
-    description:
-      "Master prompt engineering, custom instructions, and ChatGPT workflows for writing, research, business, and freelance work.",
-    level: "Intermediate",
-    category: "Artificial Intelligence",
-    hours: 6,
-    image: "/courses/chatgpt-masterclass.jpg",
-    lessons: [
-      { id: "l1", title: "Prompt engineering fundamentals", duration: "14:20", videoUrl: "" },
-      { id: "l2", title: "Custom instructions & memory", duration: "09:55", videoUrl: "" },
-      { id: "l3", title: "Building repeatable workflows", duration: "16:10", videoUrl: "" },
-      { id: "l4", title: "Freelancing with ChatGPT", duration: "13:40", videoUrl: "" },
-    ],
-    resources: [
-      { id: "r1", title: "50 Proven Prompts", type: "pdf", fileUrl: "" },
-      { id: "r2", title: "Client Workflow Template", type: "template", fileUrl: "" },
-    ],
-  },
-  {
-    id: "claude-ai",
-    title: "Claude AI",
-    tagline: "Work smarter with Anthropic's Claude",
-    description:
-      "Learn how to use Claude for writing, coding, research, and everyday productivity — including artifacts, projects, and long-context workflows.",
-    level: "Intermediate",
-    category: "Artificial Intelligence",
-    hours: 5,
-    image: "/courses/claude-ai.jpg",
-    lessons: [
-      { id: "l1", title: "Getting started with Claude", duration: "07:50", videoUrl: "" },
-      { id: "l2", title: "Projects, Artifacts & memory", duration: "11:15", videoUrl: "" },
-      { id: "l3", title: "Claude for research and writing", duration: "12:05", videoUrl: "" },
-      { id: "l4", title: "Building simple tools with Claude", duration: "18:30", videoUrl: "" },
-    ],
-    resources: [
-      { id: "r1", title: "Claude Prompting Guide", type: "pdf", fileUrl: "" },
-    ],
-  },
-  {
     id: "affiliate-marketing",
     title: "Affiliate Marketing",
     tagline: "Build an ethical income stream promoting products you trust",
@@ -114,45 +73,24 @@ export const courses: Course[] = [
     ],
   },
   {
-    id: "shopify-dropshipping",
-    title: "Shopify Dropshipping",
-    tagline: "Launch a legitimate online store from scratch",
+    id: "ai-dropshipping",
+    title: "AI Dropshipping",
+    tagline: "Use AI tools to run a leaner, smarter dropshipping store",
     description:
-      "Set up a Shopify store, source reliable suppliers, and market a small catalog without inventory risk.",
+      "Combine dropshipping fundamentals with AI tools for product research, store copy, and customer support — without inventory risk.",
     level: "Intermediate",
     category: "E-commerce",
     hours: 8,
-    image: "/courses/shopify-dropshipping.jpg",
+    image: "/courses/ai-dropshipping.jpg",
     lessons: [
-      { id: "l1", title: "Setting up your Shopify store", duration: "16:20", videoUrl: "" },
-      { id: "l2", title: "Finding trustworthy suppliers", duration: "14:00", videoUrl: "" },
-      { id: "l3", title: "Pricing and margins that work", duration: "11:30", videoUrl: "" },
+      { id: "l1", title: "Setting up your store", duration: "16:20", videoUrl: "" },
+      { id: "l2", title: "AI-assisted product research", duration: "14:00", videoUrl: "" },
+      { id: "l3", title: "Writing product pages with AI", duration: "11:30", videoUrl: "" },
       { id: "l4", title: "Customer service & returns", duration: "10:45", videoUrl: "" },
     ],
     resources: [
       { id: "r1", title: "Store Launch Checklist", type: "pdf", fileUrl: "" },
       { id: "r2", title: "Supplier Vetting Template", type: "template", fileUrl: "" },
-    ],
-  },
-  {
-    id: "meta-ads",
-    title: "Meta Ads",
-    tagline: "Run profitable ads on Facebook & Instagram",
-    description:
-      "Learn campaign structure, audience targeting, creative testing, and budget management for Meta Ads Manager.",
-    level: "Advanced",
-    category: "Digital Marketing",
-    hours: 6,
-    image: "/courses/meta-ads.jpg",
-    lessons: [
-      { id: "l1", title: "Ads Manager walkthrough", duration: "12:50", videoUrl: "" },
-      { id: "l2", title: "Audience targeting strategy", duration: "14:15", videoUrl: "" },
-      { id: "l3", title: "Creative testing frameworks", duration: "13:00", videoUrl: "" },
-      { id: "l4", title: "Budgeting and scaling safely", duration: "10:30", videoUrl: "" },
-    ],
-    resources: [
-      { id: "r1", title: "Campaign Structure Template", type: "template", fileUrl: "" },
-      { id: "r2", title: "Ad Spend Tracker", type: "pdf", fileUrl: "" },
     ],
   },
   {
@@ -174,6 +112,69 @@ export const courses: Course[] = [
     resources: [
       { id: "r1", title: "Brand Kit Template", type: "template", fileUrl: "" },
       { id: "r2", title: "Social Post Size Cheat Sheet", type: "pdf", fileUrl: "" },
+    ],
+  },
+  {
+    id: "facebook-ads",
+    title: "Facebook Ads",
+    tagline: "Run profitable ads on Facebook & Instagram",
+    description:
+      "Learn campaign structure, audience targeting, creative testing, and budget management using Meta Ads Manager.",
+    level: "Advanced",
+    category: "Digital Marketing",
+    hours: 6,
+    image: "/courses/facebook-ads.jpg",
+    lessons: [
+      { id: "l1", title: "Ads Manager walkthrough", duration: "12:50", videoUrl: "" },
+      { id: "l2", title: "Audience targeting strategy", duration: "14:15", videoUrl: "" },
+      { id: "l3", title: "Creative testing frameworks", duration: "13:00", videoUrl: "" },
+      { id: "l4", title: "Budgeting and scaling safely", duration: "10:30", videoUrl: "" },
+    ],
+    resources: [
+      { id: "r1", title: "Campaign Structure Template", type: "template", fileUrl: "" },
+      { id: "r2", title: "Ad Spend Tracker", type: "pdf", fileUrl: "" },
+    ],
+  },
+  {
+    id: "web-development",
+    title: "Web Development",
+    tagline: "Build real websites, even without a computer science background",
+    description:
+      "A practical introduction to building and deploying websites — HTML, CSS, and modern no-code/low-code tools you can use from a phone.",
+    level: "Beginner",
+    category: "Web Development",
+    hours: 9,
+    image: "/courses/web-development.jpg",
+    lessons: [
+      { id: "l1", title: "How websites actually work", duration: "09:40", videoUrl: "" },
+      { id: "l2", title: "HTML & CSS fundamentals", duration: "18:20", videoUrl: "" },
+      { id: "l3", title: "Building with no-code tools", duration: "14:50", videoUrl: "" },
+      { id: "l4", title: "Deploying your first site", duration: "12:10", videoUrl: "" },
+    ],
+    resources: [
+      { id: "r1", title: "HTML/CSS Cheat Sheet", type: "pdf", fileUrl: "" },
+      { id: "r2", title: "Website Launch Checklist", type: "template", fileUrl: "" },
+    ],
+  },
+  {
+    id: "make-money-online",
+    title: "How to Make Money Online",
+    tagline: "A realistic map of legitimate ways to earn online",
+    description:
+      "An honest overview of the main paths to earning online — freelancing, digital products, affiliate income, and more — so you can pick the one that fits you.",
+    level: "Beginner",
+    category: "Digital Marketing",
+    hours: 5,
+    image: "/courses/make-money-online.jpg",
+    lessons: [
+      { id: "l1", title: "Mapping the realistic options", duration: "11:20", videoUrl: "" },
+      { id: "l2", title: "Picking a path that fits your skills", duration: "09:45", videoUrl: "" },
+      { id: "l3", title: "Avoiding scams and false promises", duration: "10:30", videoUrl: "" },
+      { id: "l4", title: "Your first 30-day action plan", duration: "13:15", videoUrl: "" },
+    ],
+    resources: [
+      { id: "r1", title: "30-Day Action Plan Template", type: "template", fileUrl: "" },
+      { id: "r2", title: "Scam Red Flags Checklist", type: "pdf", fileUrl: "" },
     ],
   },
 ];
