@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Award, Heart, PartyPopper } from "lucide-react";
+import { Award, Heart, PartyPopper, Download } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardShell from "@/components/DashboardShell";
 import { useAuth } from "@/lib/auth-context";
 import { getUserProfile, UserProfile } from "@/lib/firestore-helpers";
+import { generateCertificatePDF } from "@/lib/certificate";
 import { courses, getCourseById } from "@/data/courses";
 
 export default function ProfilePage() {
@@ -32,6 +33,22 @@ function ProfileContent() {
 
   const favoriteCourses = courses.filter((c) => profile?.favorites.includes(c.id));
   const completedCourses = courses.filter((c) => profile?.completedCourses.includes(c.id));
+
+  function handleDownload(courseId: string, courseTitle: string) {
+    const quizResult = profile?.quizResults?.[courseId];
+    if (!user || !quizResult?.certificateId) return;
+
+    generateCertificatePDF({
+      studentName: user.displayName || "Student",
+      courseName: courseTitle,
+      completionDate: new Date(quizResult.completedAt).toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      }),
+      certificateId: quizResult.certificateId,
+    });
+  }
 
   return (
     <div className="animate-rise">
@@ -60,18 +77,29 @@ function ProfileContent() {
           <Award className="h-5 w-5 text-gold-500" /> Certificates
         </h2>
         {completedCourses.length === 0 ? (
-          <p className="mt-3 text-sm text-smoke">Complete a course to earn your first certificate.</p>
+          <p className="mt-3 text-sm text-smoke">Complete a course and pass its quiz (80%+) to earn your first certificate.</p>
         ) : (
           <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {completedCourses.map((c) => (
-              <div key={c.id} className="card flex items-center justify-between p-4 shadow-gold">
-                <div>
-                  <p className="text-sm font-medium text-bone">{c.title}</p>
-                  <p className="text-xs text-smoke">Certified</p>
+            {completedCourses.map((c) => {
+              const result = profile?.quizResults?.[c.id];
+              return (
+                <div key={c.id} className="card flex items-center justify-between p-4 shadow-gold">
+                  <div>
+                    <p className="text-sm font-medium text-bone">{c.title}</p>
+                    <p className="text-xs text-smoke">
+                      Certified {result?.score ? `· ${result.score}%` : ""}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => handleDownload(c.id, c.title)}
+                    aria-label={`Download certificate for ${c.title}`}
+                    className="flex h-10 w-10 items-center justify-center rounded-full bg-ink-850 text-gold-500 transition-colors hover:bg-ink-800"
+                  >
+                    <Download className="h-4 w-4" />
+                  </button>
                 </div>
-                <Award className="h-6 w-6 text-gold-500" />
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </section>
