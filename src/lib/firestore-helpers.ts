@@ -20,6 +20,14 @@ export interface UserProfile {
   enrolledCourses: string[];
   favorites: string[];
   completedCourses: string[];
+  quizResults?: Record<string, QuizResult>;
+}
+
+export interface QuizResult {
+  score: number; // percentage, 0-100
+  passed: boolean;
+  certificateId?: string;
+  completedAt: string; // ISO date string
 }
 
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
@@ -49,11 +57,43 @@ export async function markLessonComplete(uid: string, courseId: string, lessonId
   });
 }
 
-export async function markCourseComplete(uid: string, courseId: string) {
-  await updateDoc(doc(db, "users", uid), {
-    completedCourses: arrayUnion(courseId),
-    [`certificates.${courseId}`]: {
-      issuedAt: serverTimestamp(),
-    },
-  });
+// Generates a short, unique-enough certificate ID from the course id,
+// user id, and current time. Good enough for display/verification purposes
+// without needing a server-side counter.
+function generateCertificateId(uid: string, courseId: string): string {
+  const stamp = Date.now().toString(36).toUpperCase();
+  const userPart = uid.slice(0, 4).toUpperCase();
+  const coursePart = courseId.slice(0, 3).toUpperCase();
+  return `BDA-${coursePart}-${userPart}-${stamp}`;
+}
+
+// Saves a quiz score for a course. If the score is 80% or above, the
+// course is marked completed and a certificate ID is generated and stored.
+// Returns the result so the calling page can immediately show the outcome.
+export async function submitQuizResult(
+  uid: string,
+  courseId: string,
+  score: number
+): Promise<QuizResult> {
+  const passed = score >= 80;
+  const result: QuizResult = {
+    score,
+    passed,
+    completedAt: new Date().toISOString(),
+  };
+
+  if (passed) {
+    result.certificateId = generateCertificateId(uid, courseId);
+  }
+
+  const updates: Record<string, unknown> = {
+    [`quizResults.${courseId}`]: result,
+  };
+
+  if (passed) {
+    updates.completedCourses = arrayUnion(courseId);
+  }
+
+  await updateDoc(doc(db, "users", uid), updates);
+  return result;
 }
