@@ -6,7 +6,7 @@ import Link from "next/link";
 import { PlayCircle, CheckCircle2, ArrowLeft } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
-import { markLessonComplete, markCourseComplete } from "@/lib/firestore-helpers";
+import { markLessonComplete } from "@/lib/firestore-helpers";
 import { getCourseById } from "@/data/courses";
 
 export default function LessonPage({ params }: { params: { id: string } }) {
@@ -44,8 +44,10 @@ function LessonContent({ courseId }: { courseId: string }) {
     setCompleted((prev) => new Set(prev).add(activeLesson.id));
 
     if (isLastLesson) {
-      await markCourseComplete(user.uid, course!.id);
-      router.push(`/profile?certified=${course!.id}`);
+      // All lessons done — send the student to the quiz instead of
+      // granting the certificate directly. The quiz page handles scoring
+      // and certificate generation once they score 80% or higher.
+      router.push(`/quiz/${course!.id}`);
       return;
     }
     setActiveIndex((i) => Math.min(i + 1, course!.lessons.length - 1));
@@ -69,7 +71,7 @@ function LessonContent({ courseId }: { courseId: string }) {
           <p className="mt-1 text-sm text-smoke">{course.title} &middot; {activeLesson.duration}</p>
 
           <button onClick={handleMarkComplete} className="btn-gold mt-6">
-            {isLastLesson ? "Finish course & get certificate" : "Mark complete & continue"}
+            {isLastLesson ? "Finish lessons & take quiz" : "Mark complete & continue"}
           </button>
         </div>
 
