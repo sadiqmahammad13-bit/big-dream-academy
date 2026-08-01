@@ -6,7 +6,7 @@ export interface Lesson {
   id: string;
   title: string;
   duration: string; // e.g. "12:30"
-  videoUrl: string; // placeholder — swap for real hosted video / Mux / YouTube unlisted
+  videoUrl: string; // YouTube video ID or full URL — empty string means placeholder
 }
 
 export interface Resource {
@@ -49,10 +49,10 @@ export const courses: Course[] = [
     hours: 4,
     image: "/courses/ai-for-beginners.jpg",
     lessons: [
-      { id: "l1", title: "What AI can (and can't) do for you", duration: "08:12", videoUrl: "" },
-      { id: "l2", title: "Choosing the right AI tool for a task", duration: "10:45", videoUrl: "" },
-      { id: "l3", title: "Writing prompts that actually work", duration: "12:30", videoUrl: "" },
-      { id: "l4", title: "Turning AI skills into income", duration: "15:00", videoUrl: "" },
+      { id: "l1", title: "What AI can (and can't) do for you", duration: "08:12", videoUrl: "pUtI_Flz6vo" },
+      { id: "l2", title: "Choosing the right AI tool for a task", duration: "10:45", videoUrl: "ZIz3zFOWka0" },
+      { id: "l3", title: "Writing prompts that actually work", duration: "12:30", videoUrl: "7nEkl0T90vU" },
+      { id: "l4", title: "Turning AI skills into income", duration: "15:00", videoUrl: "RLsjqV6AoJQ" },
     ],
     resources: [
       { id: "r1", title: "AI Tools Cheat Sheet", type: "pdf", fileUrl: "" },
