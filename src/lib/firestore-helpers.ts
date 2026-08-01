@@ -97,3 +97,4 @@ export async function submitQuizResult(
   await updateDoc(doc(db, "users", uid), updates);
   return result;
 }
+// Build cache refresh marker
