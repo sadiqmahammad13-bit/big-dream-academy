@@ -30,6 +30,7 @@ function LessonContent({ courseId }: { courseId: string }) {
   );
   const [activeIndex, setActiveIndex] = useState(initialIndex === -1 ? 0 : initialIndex);
   const [completed, setCompleted] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
 
   if (!course) {
     return <p className="p-10 text-center text-smoke">Course not found.</p>;
@@ -39,14 +40,21 @@ function LessonContent({ courseId }: { courseId: string }) {
   const isLastLesson = activeIndex === course.lessons.length - 1;
 
   async function handleMarkComplete() {
-    if (!user) return;
-    await markLessonComplete(user.uid, course!.id, activeLesson.id);
+    if (!user || saving) return;
+    setSaving(true);
+
+    // Try to save progress to Firestore, but never let a save failure
+    // block navigation — the student should still move forward.
+    try {
+      await markLessonComplete(user.uid, course!.id, activeLesson.id);
+    } catch (err) {
+      console.error("Failed to save lesson progress:", err);
+    }
+
     setCompleted((prev) => new Set(prev).add(activeLesson.id));
+    setSaving(false);
 
     if (isLastLesson) {
-      // All lessons done — send the student to the quiz instead of
-      // granting the certificate directly. The quiz page handles scoring
-      // and certificate generation once they score 80% or higher.
       router.push(`/quiz/${course!.id}`);
       return;
     }
@@ -82,8 +90,8 @@ function LessonContent({ courseId }: { courseId: string }) {
           <h1 className="mt-5 font-display text-xl font-bold text-bone">{activeLesson.title}</h1>
           <p className="mt-1 text-sm text-smoke">{course.title} &middot; {activeLesson.duration}</p>
 
-          <button onClick={handleMarkComplete} className="btn-gold mt-6">
-            {isLastLesson ? "Finish lessons & take quiz" : "Mark complete & continue"}
+          <button onClick={handleMarkComplete} disabled={saving} className="btn-gold mt-6 disabled:opacity-60">
+            {saving ? "Saving…" : isLastLesson ? "Finish lessons & take quiz" : "Mark complete & continue"}
           </button>
         </div>
 
