@@ -9,6 +9,7 @@ import {
   arrayRemove,
   increment,
   serverTimestamp,
+  type UpdateData,
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -86,15 +87,14 @@ export async function submitQuizResult(
     result.certificateId = generateCertificateId(uid, courseId);
   }
 
-  const updates: Record<string, unknown> = {
+  const updates: UpdateData<UserProfile> = {
     [`quizResults.${courseId}`]: result,
   };
 
   if (passed) {
-    updates.completedCourses = arrayUnion(courseId);
+    updates.completedCourses = arrayUnion(courseId) as unknown as string[];
   }
 
   await updateDoc(doc(db, "users", uid), updates);
   return result;
 }
-// Build cache refresh marker
