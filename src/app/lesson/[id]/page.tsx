@@ -62,10 +62,22 @@ function LessonContent({ courseId }: { courseId: string }) {
             <ArrowLeft className="h-4 w-4" /> Back to course
           </Link>
 
-          {/* Placeholder video player — swap `src` for a hosted MP4, YouTube unlisted embed, or Mux stream */}
-          <div className="flex aspect-video items-center justify-center rounded-2xl border border-ink-700 bg-ink-900">
-            <PlayCircle className="h-16 w-16 text-grow-500/60" />
-          </div>
+          {activeLesson.videoUrl ? (
+            <div className="aspect-video overflow-hidden rounded-2xl border border-ink-700 bg-ink-900">
+              <iframe
+                key={activeLesson.id}
+                src={`https://www.youtube.com/embed/${activeLesson.videoUrl}`}
+                title={activeLesson.title}
+                className="h-full w-full"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+              />
+            </div>
+          ) : (
+            <div className="flex aspect-video items-center justify-center rounded-2xl border border-ink-700 bg-ink-900">
+              <PlayCircle className="h-16 w-16 text-grow-500/60" />
+            </div>
+          )}
 
           <h1 className="mt-5 font-display text-xl font-bold text-bone">{activeLesson.title}</h1>
           <p className="mt-1 text-sm text-smoke">{course.title} &middot; {activeLesson.duration}</p>
