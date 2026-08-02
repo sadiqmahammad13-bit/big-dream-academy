@@ -8,7 +8,7 @@ import {
   Download,
   User,
   CreditCard,
-  Shield,
+  FileText,
   LogOut,
   Sparkles,
 } from "lucide-react";
@@ -17,6 +17,7 @@ import { useAuth } from "@/lib/auth-context";
 const navItems = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { href: "/courses", label: "Courses", icon: BookOpen },
+  { href: "/ebooks", label: "eBooks", icon: FileText },
   { href: "/downloads", label: "Downloads", icon: Download },
   { href: "/profile", label: "Profile", icon: User },
   { href: "/payment", label: "Billing", icon: CreditCard },
