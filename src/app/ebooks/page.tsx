@@ -81,10 +81,12 @@ function EbooksContent() {
       });
 
       handler.openIframe();
-    } catch (err) {
+    } } catch (err) {
       console.error("Paystack checkout failed to open:", err);
-      setError("Couldn't open the payment window. Please try again.");
+      const message = err instanceof Error ? err.message : String(err);
+      setError(`Payment error: ${message}`);
       setBuyingId(null);
+}
     }
   }
 
