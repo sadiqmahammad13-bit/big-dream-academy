@@ -57,8 +57,7 @@ function EbooksContent() {
   function handleBuy(ebook: Ebook) {
     if (!user?.email || ebook.status !== "available") return;
     setError(null);
-
-    alert(`KEY IS: [${PAYSTACK_PUBLIC_KEY}] LENGTH: ${PAYSTACK_PUBLIC_KEY.length} EMAIL: [${user.email}] AMOUNT: ${ebook.amount}`);
+length} EMAIL: [${user.email}] AMOUNT: ${ebook.amount}`);
 
     if (typeof window.PaystackPop === "undefined") {
       setError("Payment is still loading — please wait a moment and try again.");
