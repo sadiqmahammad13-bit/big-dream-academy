@@ -2,13 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Award, Heart, PartyPopper, Download } from "lucide-react";
+import { Award, Heart, PartyPopper, Download, FileText, BookOpen } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardShell from "@/components/DashboardShell";
 import { useAuth } from "@/lib/auth-context";
 import { getUserProfile, UserProfile } from "@/lib/firestore-helpers";
 import { generateCertificatePDF } from "@/lib/certificate";
 import { courses, getCourseById } from "@/data/courses";
+import { ebooks } from "@/data/ebooks";
 
 export default function ProfilePage() {
   return (
@@ -33,6 +34,7 @@ function ProfileContent() {
 
   const favoriteCourses = courses.filter((c) => profile?.favorites.includes(c.id));
   const completedCourses = courses.filter((c) => profile?.completedCourses.includes(c.id));
+  const ownedEbooks = ebooks.filter((e) => profile?.ownedEbooks?.includes(e.id));
 
   function handleDownload(courseId: string, courseTitle: string) {
     const quizResult = profile?.quizResults?.[courseId];
@@ -100,6 +102,35 @@ function ProfileContent() {
                 </div>
               );
             })}
+          </div>
+        )}
+      </section>
+
+      {/* My eBooks */}
+      <section className="mt-10">
+        <h2 className="flex items-center gap-2 font-display text-lg font-semibold text-bone">
+          <FileText className="h-5 w-5 text-gold-500" /> My eBooks
+        </h2>
+        {ownedEbooks.length === 0 ? (
+          <p className="mt-3 text-sm text-smoke">Books you buy from the eBooks page will show up here.</p>
+        ) : (
+          <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {ownedEbooks.map((e) => (
+              <div key={e.id} className="card flex items-center justify-between p-4">
+                <div>
+                  <p className="text-sm font-medium text-bone">{e.title}</p>
+                  <p className="text-xs text-smoke">Owned</p>
+                </div>
+                <div className="flex gap-2">
+                  <button className="flex h-10 w-10 items-center justify-center rounded-full bg-ink-850 text-grow-400 transition-colors hover:bg-ink-800">
+                    <BookOpen className="h-4 w-4" />
+                  </button>
+                  <button className="flex h-10 w-10 items-center justify-center rounded-full bg-ink-850 text-gold-500 transition-colors hover:bg-ink-800">
+                    <Download className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
           </div>
         )}
       </section>
