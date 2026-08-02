@@ -42,6 +42,7 @@ function EbooksContent() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (user) getUserProfile(user.uid).then(setProfile);
@@ -49,32 +50,54 @@ function EbooksContent() {
 
   function handleBuy(ebook: Ebook) {
     if (!user?.email || ebook.status !== "available") return;
+    setError(null);
+
+    // The Paystack script loads asynchronously in layout.tsx — if the
+    // person clicks Buy Now before it's ready, window.PaystackPop won't
+    // exist yet. Catch that instead of leaving the button stuck.
+    if (typeof window.PaystackPop === "undefined") {
+      setError("Payment is still loading — please wait a moment and try again.");
+      return;
+    }
+
     setBuyingId(ebook.id);
 
-    const handler = window.PaystackPop.setup({
-      key: PAYSTACK_PUBLIC_KEY,
-      email: user.email,
-      amount: ebook.amount,
-      currency: "NGN",
-      ref: `bda-ebook-${ebook.id}-${Date.now()}`,
-      callback: async () => {
-        await grantEbookAccess(user.uid, ebook.id);
-        const updated = await getUserProfile(user.uid);
-        setProfile(updated);
-        setBuyingId(null);
-      },
-      onClose: () => {
-        setBuyingId(null);
-      },
-    });
+    try {
+      const handler = window.PaystackPop.setup({
+        key: PAYSTACK_PUBLIC_KEY,
+        email: user.email,
+        amount: ebook.amount,
+        currency: "NGN",
+        ref: `bda-ebook-${ebook.id}-${Date.now()}`,
+        callback: async () => {
+          await grantEbookAccess(user.uid, ebook.id);
+          const updated = await getUserProfile(user.uid);
+          setProfile(updated);
+          setBuyingId(null);
+        },
+        onClose: () => {
+          setBuyingId(null);
+        },
+      });
 
-    handler.openIframe();
+      handler.openIframe();
+    } catch (err) {
+      console.error("Paystack checkout failed to open:", err);
+      setError("Couldn't open the payment window. Please try again.");
+      setBuyingId(null);
+    }
   }
 
   return (
     <div className="animate-rise">
       <h1 className="font-display text-2xl font-bold text-bone">eBooks</h1>
       <p className="mt-1 text-smoke">Downloadable guides to go deeper on each skill.</p>
+
+      {error && (
+        <p className="mt-4 rounded-xl border border-red-900 bg-red-950/30 px-4 py-2 text-sm text-red-400">
+          {error}
+        </p>
+      )}
 
       <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {ebooks.map((ebook) => {
