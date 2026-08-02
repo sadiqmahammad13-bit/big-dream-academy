@@ -52,9 +52,6 @@ function EbooksContent() {
     if (!user?.email || ebook.status !== "available") return;
     setError(null);
 
-    // The Paystack script loads asynchronously in layout.tsx — if the
-    // person clicks Buy Now before it's ready, window.PaystackPop won't
-    // exist yet. Catch that instead of leaving the button stuck.
     if (typeof window.PaystackPop === "undefined") {
       setError("Payment is still loading — please wait a moment and try again.");
       return;
@@ -81,12 +78,11 @@ function EbooksContent() {
       });
 
       handler.openIframe();
-    } } catch (err) {
+    } catch (err) {
       console.error("Paystack checkout failed to open:", err);
       const message = err instanceof Error ? err.message : String(err);
       setError(`Payment error: ${message}`);
       setBuyingId(null);
-}
     }
   }
 
