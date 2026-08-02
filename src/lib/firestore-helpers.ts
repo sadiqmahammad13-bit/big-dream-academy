@@ -22,6 +22,7 @@ export interface UserProfile {
   favorites: string[];
   completedCourses: string[];
   quizResults?: Record<string, QuizResult>;
+  ownedEbooks?: string[];
 }
 
 export interface QuizResult {
@@ -97,4 +98,12 @@ export async function submitQuizResult(
 
   await updateDoc(doc(db, "users", uid), updates);
   return result;
+}
+
+// Marks an eBook as owned after a successful Paystack payment. Called from
+// the eBooks page's payment callback — see src/app/ebooks/page.tsx.
+export async function grantEbookAccess(uid: string, ebookId: string) {
+  await updateDoc(doc(db, "users", uid), {
+    ownedEbooks: arrayUnion(ebookId),
+  });
 }
