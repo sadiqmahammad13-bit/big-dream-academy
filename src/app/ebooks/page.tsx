@@ -54,40 +54,58 @@ function EbooksContent() {
       .finally(() => setBuyingId(null));
   }
 
+  function openCheckout(ebook: Ebook) {
+    if (!user?.email) return;
+
+    const handler = window.PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: user.email,
+      amount: ebook.amount,
+      currency: "NGN",
+      ref: `bda-ebook-${ebook.id}-${Date.now()}`,
+      callback: function () {
+        handlePaymentSuccess(ebook.id);
+      },
+      onClose: function () {
+        setBuyingId(null);
+      },
+    });
+
+    handler.openIframe();
+  }
+
   function handleBuy(ebook: Ebook) {
     if (!user?.email || ebook.status !== "available") return;
     setError(null);
-length} EMAIL: [${user.email}] AMOUNT: ${ebook.amount}`);
-
-    if (typeof window.PaystackPop === "undefined") {
-      setError("Payment is still loading — please wait a moment and try again.");
-      return;
-    }
-
     setBuyingId(ebook.id);
 
-    try {
-      const handler = window.PaystackPop.setup({
-        key: PAYSTACK_PUBLIC_KEY,
-        email: user.email,
-        amount: ebook.amount,
-        currency: "NGN",
-        ref: `bda-ebook-${ebook.id}-${Date.now()}`,
-        callback: function () {
-          handlePaymentSuccess(ebook.id);
-        },
-        onClose: function () {
+    // The Paystack inline script loads asynchronously (see layout.tsx).
+    // On a fresh page load it's sometimes not fully ready the instant
+    // someone taps Buy Now, even though window.PaystackPop already exists —
+    // calling setup() too early causes Paystack's own "invalid key" error.
+    // Retry briefly instead of failing immediately.
+    let attempts = 0;
+    const maxAttempts = 20; // ~4 seconds total
+    const tryOpen = () => {
+      attempts += 1;
+      if (typeof window.PaystackPop !== "undefined") {
+        try {
+          openCheckout(ebook);
+        } catch (err) {
+          console.error("Paystack checkout failed to open:", err);
+          setError("Couldn't open the payment window. Please try again.");
           setBuyingId(null);
-        },
-      });
-
-      handler.openIframe();
-    } catch (err) {
-      console.error("Paystack checkout failed to open:", err);
-      const message = err instanceof Error ? err.message : String(err);
-      setError(`Payment error: ${message}`);
-      setBuyingId(null);
-    }
+        }
+        return;
+      }
+      if (attempts >= maxAttempts) {
+        setError("Payment is taking longer than expected to load. Please refresh the page and try again.");
+        setBuyingId(null);
+        return;
+      }
+      setTimeout(tryOpen, 200);
+    };
+    tryOpen();
   }
 
   return (
@@ -142,7 +160,7 @@ length} EMAIL: [${user.email}] AMOUNT: ${ebook.amount}`);
                   disabled={isBuying}
                   className="btn-gold mt-4 flex w-full items-center justify-center gap-2 text-sm disabled:opacity-60"
                 >
-                  <ShoppingCart className="h-4 w-4" /> {isBuying ? "Processing…" : "Buy Now"}
+                  <ShoppingCart className="h-4 w-4" /> {isBuying ? "Loading…" : "Buy Now"}
                 </button>
               )}
             </div>
