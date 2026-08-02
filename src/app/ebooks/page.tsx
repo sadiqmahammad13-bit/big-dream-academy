@@ -24,8 +24,6 @@ declare global {
   }
 }
 
-// Same test key used on the Billing page — swap both for pk_live_... once
-// Paystack approves the account.
 const PAYSTACK_PUBLIC_KEY = "pk_test_46b692b386841ac8169bf05db7ffe38205423710";
 
 export default function EbooksPage() {
@@ -48,6 +46,17 @@ function EbooksContent() {
     if (user) getUserProfile(user.uid).then(setProfile);
   }, [user]);
 
+  // Runs after Paystack confirms payment. Kept separate from the callback
+  // itself so the callback we hand to Paystack stays a plain (non-async)
+  // function — some Paystack script versions reject async functions there.
+  function handlePaymentSuccess(ebookId: string) {
+    if (!user) return;
+    grantEbookAccess(user.uid, ebookId)
+      .then(() => getUserProfile(user.uid))
+      .then((updated) => setProfile(updated))
+      .finally(() => setBuyingId(null));
+  }
+
   function handleBuy(ebook: Ebook) {
     if (!user?.email || ebook.status !== "available") return;
     setError(null);
@@ -66,13 +75,10 @@ function EbooksContent() {
         amount: ebook.amount,
         currency: "NGN",
         ref: `bda-ebook-${ebook.id}-${Date.now()}`,
-        callback: async () => {
-          await grantEbookAccess(user.uid, ebook.id);
-          const updated = await getUserProfile(user.uid);
-          setProfile(updated);
-          setBuyingId(null);
+        callback: function () {
+          handlePaymentSuccess(ebook.id);
         },
-        onClose: () => {
+        onClose: function () {
           setBuyingId(null);
         },
       });
