@@ -25,6 +25,7 @@ function QuizContent({ courseId }: { courseId: string }) {
   const [answers, setAnswers] = useState<Record<string, number>>({});
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<{ score: number; passed: boolean } | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   if (!course) {
     return <p className="p-10 text-center text-smoke">Course not found.</p>;
@@ -39,12 +40,24 @@ function QuizContent({ courseId }: { courseId: string }) {
   async function handleSubmit() {
     if (!user || !course) return;
     setSubmitting(true);
+    setSaveError(null);
 
     const correctCount = course.quiz.filter((q) => answers[q.id] === q.correctIndex).length;
     const score = Math.round((correctCount / course.quiz.length) * 100);
 
-    const quizResult = await submitQuizResult(user.uid, course.id, score);
-    setResult({ score, passed: quizResult.passed });
+    // Always compute and show the result locally, even if the Firestore
+    // write below fails — a database hiccup shouldn't leave the student
+    // stuck on "Submitting…" with no feedback.
+    const passed = score >= 80;
+
+    try {
+      await submitQuizResult(user.uid, course.id, score);
+    } catch (err) {
+      console.error("Failed to save quiz result:", err);
+      setSaveError("Your score was calculated, but we couldn't save it to your profile. Please check your connection and try again from your dashboard.");
+    }
+
+    setResult({ score, passed });
     setSubmitting(false);
   }
 
@@ -59,6 +72,11 @@ function QuizContent({ courseId }: { courseId: string }) {
               <p className="mt-2 text-smoke">
                 You scored <span className="text-grow-400 font-semibold">{result.score}%</span> — you passed and earned a certificate.
               </p>
+              {saveError && (
+                <p className="mt-3 rounded-xl border border-red-900 bg-red-950/30 px-3 py-2 text-xs text-red-400">
+                  {saveError}
+                </p>
+              )}
               <Link href={`/profile?certified=${course.id}`} className="btn-gold mt-6 inline-flex">
                 View your certificate
               </Link>
