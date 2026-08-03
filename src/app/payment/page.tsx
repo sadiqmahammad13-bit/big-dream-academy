@@ -5,6 +5,7 @@ import { Check, ShieldCheck } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardShell from "@/components/DashboardShell";
 import { useAuth } from "@/lib/auth-context";
+import { recordPurchase } from "@/lib/firestore-helpers";
 
 declare global {
   interface Window {
@@ -22,8 +23,6 @@ declare global {
   }
 }
 
-// Paystack test public key — replace with your live key (pk_live_...) once
-// you're ready to accept real payments. Never put the Secret Key here.
 const PAYSTACK_PUBLIC_KEY = "pk_test_46b692b386841ac8169bf05db7ffe38205423710";
 
 const plans = [
@@ -47,24 +46,39 @@ function PaymentContent() {
   const [selected, setSelected] = useState("standard");
   const [processing, setProcessing] = useState(false);
   const [done, setDone] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const activePlan = plans.find((p) => p.id === selected)!;
 
-  function handleCheckout() {
+  function handlePaymentSuccess() {
+    if (!user) return;
+    recordPurchase(user.uid, {
+      type: "plan",
+      itemId: activePlan.id,
+      itemLabel: `${activePlan.name} plan`,
+      amount: activePlan.amount,
+      purchasedAt: new Date().toISOString(),
+    })
+      .catch((err) => console.error("Failed to record purchase:", err))
+      .finally(() => {
+        setProcessing(false);
+        setDone(true);
+      });
+  }
+
+  function openCheckout() {
     if (!user?.email) return;
-    setProcessing(true);
 
     const handler = window.PaystackPop.setup({
       key: PAYSTACK_PUBLIC_KEY,
       email: user.email,
-      amount: activePlan.amount, // amount is in kobo (₦1 = 100 kobo)
+      amount: activePlan.amount,
       currency: "NGN",
       ref: `bda-${activePlan.id}-${Date.now()}`,
-      callback: () => {
-        setProcessing(false);
-        setDone(true);
+      callback: function () {
+        handlePaymentSuccess();
       },
-      onClose: () => {
+      onClose: function () {
         setProcessing(false);
       },
     });
@@ -72,12 +86,47 @@ function PaymentContent() {
     handler.openIframe();
   }
 
+  function handleCheckout() {
+    if (!user?.email) return;
+    setError(null);
+    setProcessing(true);
+
+    let attempts = 0;
+    const maxAttempts = 20;
+    const tryOpen = () => {
+      attempts += 1;
+      if (typeof window.PaystackPop !== "undefined") {
+        try {
+          openCheckout();
+        } catch (err) {
+          console.error("Paystack checkout failed to open:", err);
+          setError("Couldn't open the payment window. Please try again.");
+          setProcessing(false);
+        }
+        return;
+      }
+      if (attempts >= maxAttempts) {
+        setError("Payment is taking longer than expected to load. Please refresh and try again.");
+        setProcessing(false);
+        return;
+      }
+      setTimeout(tryOpen, 200);
+    };
+    tryOpen();
+  }
+
   return (
     <div className="animate-rise">
       <h1 className="font-display text-2xl font-bold text-bone">Billing</h1>
       <p className="mt-1 text-smoke">Choose a plan to unlock courses and certificates.</p>
 
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
+      {error && (
+        <p className="mt-4 rounded-xl border border-red-900 bg-red-950/30 px-4 py-2 text-sm text-red-400">
+          {error}
+        </p>
+      )}
+
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
         {plans.map((plan) => (
           <button
             key={plan.id}
@@ -123,7 +172,7 @@ function PaymentContent() {
           </div>
         ) : (
           <button onClick={handleCheckout} disabled={processing} className="btn-gold mt-5 w-full disabled:opacity-60">
-            {processing ? "Processing…" : `Pay ${activePlan.price}`}
+            {processing ? "Loading…" : `Pay ${activePlan.price}`}
           </button>
         )}
       </div>
