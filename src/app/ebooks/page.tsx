@@ -5,7 +5,7 @@ import { Star, FileText, Lock, ShoppingCart, Download, BookOpen } from "lucide-r
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardShell from "@/components/DashboardShell";
 import { useAuth } from "@/lib/auth-context";
-import { getUserProfile, grantEbookAccess, UserProfile } from "@/lib/firestore-helpers";
+import { getUserProfile, grantEbookAccess, recordPurchase, UserProfile } from "@/lib/firestore-helpers";
 import { ebooks, Ebook } from "@/data/ebooks";
 
 declare global {
@@ -46,11 +46,21 @@ function EbooksContent() {
     if (user) getUserProfile(user.uid).then(setProfile);
   }, [user]);
 
-  function handlePaymentSuccess(ebookId: string) {
+  function handlePaymentSuccess(ebook: Ebook) {
     if (!user) return;
-    grantEbookAccess(user.uid, ebookId)
+    Promise.all([
+      grantEbookAccess(user.uid, ebook.id),
+      recordPurchase(user.uid, {
+        type: "ebook",
+        itemId: ebook.id,
+        itemLabel: ebook.title,
+        amount: ebook.amount,
+        purchasedAt: new Date().toISOString(),
+      }),
+    ])
       .then(() => getUserProfile(user.uid))
       .then((updated) => setProfile(updated))
+      .catch((err) => console.error("Failed to record eBook purchase:", err))
       .finally(() => setBuyingId(null));
   }
 
@@ -64,7 +74,7 @@ function EbooksContent() {
       currency: "NGN",
       ref: `bda-ebook-${ebook.id}-${Date.now()}`,
       callback: function () {
-        handlePaymentSuccess(ebook.id);
+        handlePaymentSuccess(ebook);
       },
       onClose: function () {
         setBuyingId(null);
@@ -79,13 +89,8 @@ function EbooksContent() {
     setError(null);
     setBuyingId(ebook.id);
 
-    // The Paystack inline script loads asynchronously (see layout.tsx).
-    // On a fresh page load it's sometimes not fully ready the instant
-    // someone taps Buy Now, even though window.PaystackPop already exists —
-    // calling setup() too early causes Paystack's own "invalid key" error.
-    // Retry briefly instead of failing immediately.
     let attempts = 0;
-    const maxAttempts = 20; // ~4 seconds total
+    const maxAttempts = 20;
     const tryOpen = () => {
       attempts += 1;
       if (typeof window.PaystackPop !== "undefined") {
