@@ -4,6 +4,8 @@
 import {
   doc,
   getDoc,
+  getDocs,
+  collection,
   updateDoc,
   arrayUnion,
   arrayRemove,
@@ -12,6 +14,14 @@ import {
   type UpdateData,
 } from "firebase/firestore";
 import { db } from "./firebase";
+
+export interface Purchase {
+  type: "plan" | "ebook";
+  itemId: string;
+  itemLabel: string; // human-readable name, for the admin log
+  amount: number; // kobo
+  purchasedAt: string; // ISO date string
+}
 
 export interface UserProfile {
   name: string;
@@ -23,6 +33,7 @@ export interface UserProfile {
   completedCourses: string[];
   quizResults?: Record<string, QuizResult>;
   ownedEbooks?: string[];
+  purchases?: Purchase[];
 }
 
 export interface QuizResult {
@@ -37,6 +48,14 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   return snap.exists() ? (snap.data() as UserProfile) : null;
 }
 
+// Admin-only in practice — Firestore Security Rules restrict which fields
+// a non-admin caller can actually read back, but the client-side gate is
+// in src/app/admin/page.tsx (role check before this is ever called).
+export async function getAllUserProfiles(): Promise<(UserProfile & { uid: string })[]> {
+  const snap = await getDocs(collection(db, "users"));
+  return snap.docs.map((d) => ({ uid: d.id, ...(d.data() as UserProfile) }));
+}
+
 export async function toggleFavorite(uid: string, courseId: string, isFavorite: boolean) {
   await updateDoc(doc(db, "users", uid), {
     favorites: isFavorite ? arrayRemove(courseId) : arrayUnion(courseId),
@@ -49,9 +68,7 @@ export async function enrollInCourse(uid: string, courseId: string) {
   });
 }
 
-// Marks a lesson complete and awards XP. Course-level completion (and the
-// certificate) is granted once every lesson in the course is done — call
-// markCourseComplete() from the lesson page when that condition is met.
+// Marks a lesson complete and awards XP.
 export async function markLessonComplete(uid: string, courseId: string, lessonId: string, xpAward = 20) {
   await updateDoc(doc(db, "users", uid), {
     [`progress.${courseId}.${lessonId}`]: true,
@@ -59,9 +76,6 @@ export async function markLessonComplete(uid: string, courseId: string, lessonId
   });
 }
 
-// Generates a short, unique-enough certificate ID from the course id,
-// user id, and current time. Good enough for display/verification purposes
-// without needing a server-side counter.
 function generateCertificateId(uid: string, courseId: string): string {
   const stamp = Date.now().toString(36).toUpperCase();
   const userPart = uid.slice(0, 4).toUpperCase();
@@ -69,9 +83,6 @@ function generateCertificateId(uid: string, courseId: string): string {
   return `BDA-${coursePart}-${userPart}-${stamp}`;
 }
 
-// Saves a quiz score for a course. If the score is 80% or above, the
-// course is marked completed and a certificate ID is generated and stored.
-// Returns the result so the calling page can immediately show the outcome.
 export async function submitQuizResult(
   uid: string,
   courseId: string,
@@ -100,10 +111,16 @@ export async function submitQuizResult(
   return result;
 }
 
-// Marks an eBook as owned after a successful Paystack payment. Called from
-// the eBooks page's payment callback — see src/app/ebooks/page.tsx.
 export async function grantEbookAccess(uid: string, ebookId: string) {
   await updateDoc(doc(db, "users", uid), {
     ownedEbooks: arrayUnion(ebookId),
+  });
+}
+
+// Records a successful payment (course plan or eBook) so the Admin
+// Dashboard can show real revenue and a purchase log.
+export async function recordPurchase(uid: string, purchase: Purchase) {
+  await updateDoc(doc(db, "users", uid), {
+    purchases: arrayUnion(purchase),
   });
 }
