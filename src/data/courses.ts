@@ -102,10 +102,10 @@ export const courses: Course[] = [
     hours: 7,
     image: "/courses/affiliate-marketing.jpg",
     lessons: [
-      { id: "l1", title: "How affiliate marketing actually works", duration: "10:00", videoUrl: "" },
-      { id: "l2", title: "Choosing programs and niches", duration: "13:25", videoUrl: "" },
-      { id: "l3", title: "Content that converts, honestly", duration: "15:40", videoUrl: "" },
-      { id: "l4", title: "Tracking, disclosure & compliance", duration: "09:10", videoUrl: "" },
+      { id: "l1", title: "How affiliate marketing actually works", duration: "10:00", videoUrl: "TlNUssSLVzo" },
+      { id: "l2", title: "Choosing programs and niches", duration: "13:25", videoUrl: "tLJXai7Zo58" },
+      { id: "l3", title: "Content that converts, honestly", duration: "15:40", videoUrl: "HO7vLsE7UCo" },
+      { id: "l4", title: "Tracking, disclosure & compliance", duration: "09:10", videoUrl: "qDwhKnqiYyk" },
     ],
     resources: [
       { id: "r1", title: "Affiliate Program Comparison Sheet", type: "template", fileUrl: "" },
@@ -155,10 +155,10 @@ export const courses: Course[] = [
     hours: 8,
     image: "/courses/ai-dropshipping.jpg",
     lessons: [
-      { id: "l1", title: "Setting up your store", duration: "16:20", videoUrl: "" },
-      { id: "l2", title: "AI-assisted product research", duration: "14:00", videoUrl: "" },
-      { id: "l3", title: "Writing product pages with AI", duration: "11:30", videoUrl: "" },
-      { id: "l4", title: "Customer service & returns", duration: "10:45", videoUrl: "" },
+      { id: "l1", title: "Setting up your store", duration: "16:20", videoUrl: "fXOcocclEYE" },
+      { id: "l2", title: "AI-assisted product research", duration: "14:00", videoUrl: "7KvAUDkYUEs" },
+      { id: "l3", title: "Writing product pages with AI", duration: "11:30", videoUrl: "SFeNVdOM9sQ" },
+      { id: "l4", title: "Customer service & returns", duration: "10:45", videoUrl: "pHOZw8XNJPo" },
     ],
     resources: [
       { id: "r1", title: "Store Launch Checklist", type: "pdf", fileUrl: "" },
