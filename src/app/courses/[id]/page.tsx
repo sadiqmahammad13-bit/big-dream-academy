@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Clock, PlayCircle, FileText, CheckCircle2 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ReviewsSection from "@/components/ReviewsSection";
 import { courses, getCourseById } from "@/data/courses";
 import type { Metadata } from "next";
 
@@ -64,6 +65,8 @@ export default function CourseDetailsPage({ params }: { params: { id: string } }
                 </li>
               ))}
             </ul>
+
+            <ReviewsSection courseId={course.id} />
           </div>
 
           {/* Downloads + what you'll learn */}
