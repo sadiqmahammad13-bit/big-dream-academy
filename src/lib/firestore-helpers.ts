@@ -7,6 +7,9 @@ import {
   getDocs,
   setDoc,
   collection,
+  query,
+  where,
+  orderBy,
   updateDoc,
   arrayUnion,
   arrayRemove,
@@ -79,12 +82,6 @@ function generateCertificateId(uid: string, courseId: string): string {
   return `BDA-${coursePart}-${userPart}-${stamp}`;
 }
 
-// Saves a quiz score for a course. If the score is 80% or above, the
-// course is marked completed, a certificate ID is generated, and a public
-// lookup record is written to the top-level `certificates` collection so
-// anyone (even signed-out visitors) can verify it on the Certificate
-// Verification page — Firestore Rules allow public reads of that
-// collection specifically, unlike the `users` collection.
 export async function submitQuizResult(
   uid: string,
   courseId: string,
@@ -145,9 +142,39 @@ export interface CertificateLookupResult {
   certificateId: string;
 }
 
-// Public lookup — reads directly from the top-level `certificates`
-// collection, which Firestore Rules allow anyone to read.
 export async function verifyCertificate(certificateId: string): Promise<CertificateLookupResult | null> {
   const snap = await getDoc(doc(db, "certificates", certificateId.trim()));
   return snap.exists() ? (snap.data() as CertificateLookupResult) : null;
+}
+
+export interface Review {
+  uid: string;
+  studentName: string;
+  courseId: string;
+  rating: number; // 1-5
+  comment: string;
+  createdAt: string;
+}
+
+// One review per student per course — using `${uid}_${courseId}` as the
+// document ID means submitting again overwrites their previous review
+// instead of creating a duplicate.
+export async function submitReview(review: Review) {
+  const reviewId = `${review.uid}_${review.courseId}`;
+  await setDoc(doc(db, "reviews", reviewId), review);
+}
+
+export async function getReviewsForCourse(courseId: string): Promise<Review[]> {
+  const q = query(
+    collection(db, "reviews"),
+    where("courseId", "==", courseId),
+    orderBy("createdAt", "desc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => d.data() as Review);
+}
+
+export async function getMyReviewForCourse(uid: string, courseId: string): Promise<Review | null> {
+  const snap = await getDoc(doc(db, "reviews", `${uid}_${courseId}`));
+  return snap.exists() ? (snap.data() as Review) : null;
 }
