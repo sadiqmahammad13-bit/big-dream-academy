@@ -8,8 +8,6 @@ import Footer from "@/components/Footer";
 export default function ContactPage() {
   const [sent, setSent] = useState(false);
 
-  // In production, POST this to a Firestore `messages` collection or an
-  // email API route — kept local-only here since there's no backend wired up.
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
     setSent(true);
@@ -32,18 +30,23 @@ export default function ContactPage() {
           </form>
 
           <div className="flex flex-col gap-4">
+            <a
+              href="https://wa.me/2348087516590?text=Hello%2C%20I%20have%20a%20question%20about%20Big%20Dream%20Academy"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="card flex items-center gap-3 p-5 transition-colors hover:border-grow-500"
+            >
+              <MessageCircle className="h-5 w-5 text-grow-400" />
+              <div>
+                <p className="text-sm font-medium text-bone">Chat on WhatsApp</p>
+                <p className="text-sm text-smoke">Fastest way to reach us</p>
+              </div>
+            </a>
             <div className="card flex items-center gap-3 p-5">
               <Mail className="h-5 w-5 text-gold-500" />
               <div>
                 <p className="text-sm font-medium text-bone">Email</p>
-                <p className="text-sm text-smoke">support@bigdreamacademy.com</p>
-              </div>
-            </div>
-            <div className="card flex items-center gap-3 p-5">
-              <MessageCircle className="h-5 w-5 text-grow-400" />
-              <div>
-                <p className="text-sm font-medium text-bone">Live chat</p>
-                <p className="text-sm text-smoke">Available for enrolled students, in-app</p>
+                <p className="text-sm text-smoke">sadiqmahammad13@gmail.com</p>
               </div>
             </div>
           </div>
