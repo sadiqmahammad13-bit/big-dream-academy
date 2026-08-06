@@ -6,6 +6,7 @@ import {
   getDoc,
   getDocs,
   collection,
+  query,
   updateDoc,
   arrayUnion,
   arrayRemove,
@@ -18,9 +19,9 @@ import { db } from "./firebase";
 export interface Purchase {
   type: "plan" | "ebook";
   itemId: string;
-  itemLabel: string; // human-readable name, for the admin log
-  amount: number; // kobo
-  purchasedAt: string; // ISO date string
+  itemLabel: string;
+  amount: number;
+  purchasedAt: string;
 }
 
 export interface UserProfile {
@@ -37,10 +38,10 @@ export interface UserProfile {
 }
 
 export interface QuizResult {
-  score: number; // percentage, 0-100
+  score: number;
   passed: boolean;
   certificateId?: string;
-  completedAt: string; // ISO date string
+  completedAt: string;
 }
 
 export async function getUserProfile(uid: string): Promise<UserProfile | null> {
@@ -48,9 +49,6 @@ export async function getUserProfile(uid: string): Promise<UserProfile | null> {
   return snap.exists() ? (snap.data() as UserProfile) : null;
 }
 
-// Admin-only in practice — Firestore Security Rules restrict which fields
-// a non-admin caller can actually read back, but the client-side gate is
-// in src/app/admin/page.tsx (role check before this is ever called).
 export async function getAllUserProfiles(): Promise<(UserProfile & { uid: string })[]> {
   const snap = await getDocs(collection(db, "users"));
   return snap.docs.map((d) => ({ uid: d.id, ...(d.data() as UserProfile) }));
@@ -68,7 +66,6 @@ export async function enrollInCourse(uid: string, courseId: string) {
   });
 }
 
-// Marks a lesson complete and awards XP.
 export async function markLessonComplete(uid: string, courseId: string, lessonId: string, xpAward = 20) {
   await updateDoc(doc(db, "users", uid), {
     [`progress.${courseId}.${lessonId}`]: true,
@@ -117,10 +114,40 @@ export async function grantEbookAccess(uid: string, ebookId: string) {
   });
 }
 
-// Records a successful payment (course plan or eBook) so the Admin
-// Dashboard can show real revenue and a purchase log.
 export async function recordPurchase(uid: string, purchase: Purchase) {
   await updateDoc(doc(db, "users", uid), {
     purchases: arrayUnion(purchase),
   });
+}
+
+export interface CertificateLookupResult {
+  studentName: string;
+  courseId: string;
+  score: number;
+  completedAt: string;
+  certificateId: string;
+}
+
+// Searches all users for a matching certificate ID. This does a full scan
+// of the users collection, which is fine at this scale — if the student
+// base grows large, this should move to a dedicated `certificates`
+// collection indexed by certificate ID instead.
+export async function verifyCertificate(certificateId: string): Promise<CertificateLookupResult | null> {
+  const snap = await getDocs(query(collection(db, "users")));
+  for (const docSnap of snap.docs) {
+    const data = docSnap.data() as UserProfile;
+    if (!data.quizResults) continue;
+    for (const [courseId, result] of Object.entries(data.quizResults)) {
+      if (result.certificateId === certificateId) {
+        return {
+          studentName: data.name,
+          courseId,
+          score: result.score,
+          completedAt: result.completedAt,
+          certificateId,
+        };
+      }
+    }
+  }
+  return null;
 }
