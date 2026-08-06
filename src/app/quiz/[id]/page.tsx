@@ -44,14 +44,10 @@ function QuizContent({ courseId }: { courseId: string }) {
 
     const correctCount = course.quiz.filter((q) => answers[q.id] === q.correctIndex).length;
     const score = Math.round((correctCount / course.quiz.length) * 100);
-
-    // Always compute and show the result locally, even if the Firestore
-    // write below fails — a database hiccup shouldn't leave the student
-    // stuck on "Submitting…" with no feedback.
     const passed = score >= 80;
 
     try {
-      await submitQuizResult(user.uid, course.id, score);
+      await submitQuizResult(user.uid, course.id, score, user.displayName || "Student");
     } catch (err) {
       console.error("Failed to save quiz result:", err);
       setSaveError("Your score was calculated, but we couldn't save it to your profile. Please check your connection and try again from your dashboard.");
