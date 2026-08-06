@@ -5,13 +5,12 @@ import {
   doc,
   getDoc,
   getDocs,
+  setDoc,
   collection,
-  query,
   updateDoc,
   arrayUnion,
   arrayRemove,
   increment,
-  serverTimestamp,
   type UpdateData,
 } from "firebase/firestore";
 import { db } from "./firebase";
@@ -80,10 +79,17 @@ function generateCertificateId(uid: string, courseId: string): string {
   return `BDA-${coursePart}-${userPart}-${stamp}`;
 }
 
+// Saves a quiz score for a course. If the score is 80% or above, the
+// course is marked completed, a certificate ID is generated, and a public
+// lookup record is written to the top-level `certificates` collection so
+// anyone (even signed-out visitors) can verify it on the Certificate
+// Verification page — Firestore Rules allow public reads of that
+// collection specifically, unlike the `users` collection.
 export async function submitQuizResult(
   uid: string,
   courseId: string,
-  score: number
+  score: number,
+  studentName: string
 ): Promise<QuizResult> {
   const passed = score >= 80;
   const result: QuizResult = {
@@ -105,6 +111,17 @@ export async function submitQuizResult(
   }
 
   await updateDoc(doc(db, "users", uid), updates);
+
+  if (passed && result.certificateId) {
+    await setDoc(doc(db, "certificates", result.certificateId), {
+      studentName,
+      courseId,
+      score,
+      completedAt: result.completedAt,
+      certificateId: result.certificateId,
+    });
+  }
+
   return result;
 }
 
@@ -128,26 +145,9 @@ export interface CertificateLookupResult {
   certificateId: string;
 }
 
-// Searches all users for a matching certificate ID. This does a full scan
-// of the users collection, which is fine at this scale — if the student
-// base grows large, this should move to a dedicated `certificates`
-// collection indexed by certificate ID instead.
+// Public lookup — reads directly from the top-level `certificates`
+// collection, which Firestore Rules allow anyone to read.
 export async function verifyCertificate(certificateId: string): Promise<CertificateLookupResult | null> {
-  const snap = await getDocs(query(collection(db, "users")));
-  for (const docSnap of snap.docs) {
-    const data = docSnap.data() as UserProfile;
-    if (!data.quizResults) continue;
-    for (const [courseId, result] of Object.entries(data.quizResults)) {
-      if (result.certificateId === certificateId) {
-        return {
-          studentName: data.name,
-          courseId,
-          score: result.score,
-          completedAt: result.completedAt,
-          certificateId,
-        };
-      }
-    }
-  }
-  return null;
+  const snap = await getDoc(doc(db, "certificates", certificateId.trim()));
+  return snap.exists() ? (snap.data() as CertificateLookupResult) : null;
 }
