@@ -11,6 +11,7 @@ import {
   FileText,
   LogOut,
   Sparkles,
+  MessageCircle,
 } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
 
@@ -72,6 +73,17 @@ export default function DashboardShell({ children }: { children: React.ReactNode
       <div className="flex-1 pb-20 md:pb-0">
         <div className="mx-auto max-w-6xl px-5 py-8">{children}</div>
       </div>
+
+      {/* Floating WhatsApp button */}
+      <a
+        href="https://wa.me/2348087516590?text=Hello%2C%20I%20have%20a%20question%20about%20Big%20Dream%20Academy"
+        target="_blank"
+        rel="noopener noreferrer"
+        aria-label="Chat with us on WhatsApp"
+        className="fixed bottom-20 right-5 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-grow-500 text-ink-950 shadow-grow transition-transform hover:scale-105 md:bottom-6"
+      >
+        <MessageCircle className="h-6 w-6" />
+      </a>
 
       {/* Bottom nav — mobile */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-center justify-around border-t border-ink-800 bg-ink-950/95 py-2 backdrop-blur-md md:hidden">
