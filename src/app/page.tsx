@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, ShieldCheck, Award, Search, BellRing } from "lucide-react";
+import { ArrowRight, ShieldCheck, Award, Search, BellRing, Check } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import CourseCard from "@/components/CourseCard";
@@ -11,6 +11,12 @@ const features = [
   { icon: Award, title: "Real certificates", body: "Finish a course and earn a certificate you can actually show." },
   { icon: BellRing, title: "Stay on track", body: "Notifications and progress tracking keep momentum going." },
   { icon: ShieldCheck, title: "Ethical by design", body: "Every course teaches sustainable, honest ways to earn online." },
+];
+
+const plans = [
+  { name: "Starter", price: "₦1,000", perks: ["1 course", "1 eBook", "Certificate"] },
+  { name: "Standard", price: "₦2,000", perks: ["3 courses", "eBooks included", "Certificate", "Downloads"], featured: true },
+  { name: "Premium", price: "₦5,000", perks: ["All courses", "All eBooks", "Lifetime updates", "Premium support"] },
 ];
 
 export default function LandingPage() {
@@ -31,6 +37,7 @@ export default function LandingPage() {
             <p className="mt-5 text-base text-smoke md:text-lg">
               Big Dream Academy teaches the digital skills people are actually paid for today —
               AI, marketing, e-commerce, and design — taught step by step, with certificates to prove it.
+              Plans start from ₦1,000.
             </p>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row md:justify-start">
               <Link href="/register" className="btn-gold w-full sm:w-auto">
@@ -82,8 +89,45 @@ export default function LandingPage() {
           </div>
         </section>
 
+        {/* Pricing */}
+        <section className="border-y border-ink-800 bg-ink-900/40 py-16">
+          <div className="mx-auto max-w-6xl px-5">
+            <div className="text-center">
+              <h2 className="font-display text-2xl font-bold text-bone md:text-3xl">Pricing</h2>
+              <p className="mt-2 text-smoke">Simple, one-time plans — no hidden fees. Paid securely via Paystack.</p>
+            </div>
+            <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
+              {plans.map((plan) => (
+                <div
+                  key={plan.name}
+                  className={`card relative p-6 text-left ${plan.featured ? "border-grow-500 shadow-grow" : ""}`}
+                >
+                  {plan.featured && (
+                    <span className="absolute -top-3 right-6 rounded-full bg-gold-green px-3 py-0.5 text-[11px] font-semibold text-ink-950">
+                      Most popular
+                    </span>
+                  )}
+                  <p className="font-display text-base font-semibold text-bone">{plan.name}</p>
+                  <p className="mt-2 font-display text-3xl font-bold text-bone">{plan.price}</p>
+                  <ul className="mt-4 flex flex-col gap-2">
+                    {plan.perks.map((perk) => (
+                      <li key={perk} className="flex items-center gap-2 text-sm text-smoke">
+                        <Check className="h-4 w-4 text-grow-400" /> {perk}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <p className="mt-6 text-center text-sm text-smoke">
+              We also sell standalone eBooks from ₦1,000 each — see the{" "}
+              <Link href="/register" className="text-grow-400 hover:underline">eBooks store</Link> after signing up.
+            </p>
+          </div>
+        </section>
+
         {/* CTA */}
-        <section className="mx-auto max-w-4xl px-5 pb-24 text-center">
+        <section className="mx-auto max-w-4xl px-5 pb-24 pt-16 text-center">
           <div className="card p-10 shadow-gold">
             <h2 className="font-display text-2xl font-bold text-bone md:text-3xl">
               Your first certificate is a few lessons away
