@@ -27,7 +27,7 @@ export default function CourseLibraryPage() {
       <Navbar />
       <main className="mx-auto min-h-screen max-w-6xl px-5 py-12">
         <h1 className="font-display text-2xl font-bold text-bone md:text-3xl">Course Library</h1>
-        <p className="mt-1 text-smoke">Every skill we teach, all in one place.</p>
+        <p className="mt-1 text-smoke">Every skill we teach, all in one place. Plans start from ₦1,000 — paid securely via Paystack.</p>
 
         <div className="mt-6 flex flex-col gap-4 sm:flex-row">
           <div className="relative flex-1">
