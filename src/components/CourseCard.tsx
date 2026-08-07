@@ -42,6 +42,8 @@ export default function CourseCard({ course, progress, isFavorite, onToggleFavor
         <span>{course.category}</span>
       </div>
 
+      <p className="mt-3 font-display text-sm font-semibold text-gold-400">From ₦1,000</p>
+
       {typeof progress === "number" && (
         <div className="mt-3 h-1.5 w-full overflow-hidden rounded-full bg-ink-800">
           <div
