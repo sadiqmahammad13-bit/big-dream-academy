@@ -24,7 +24,7 @@ declare global {
   }
 }
 
- const PAYSTACK_PUBLIC_KEY = "pk_live_0528952d591b9b9a60aec57ce9baab779ee53402";
+const PAYSTACK_PUBLIC_KEY = "pk_live_0528952d591b9b9a60aec57ce9baab779ee53402";
 
 export default function EbooksPage() {
   return (
@@ -152,12 +152,22 @@ function EbooksContent() {
                 </div>
               ) : owned ? (
                 <div className="mt-4 flex flex-col gap-2">
-                  <button className="btn-outline flex items-center justify-center gap-2 text-sm">
+                  <a
+                    href={ebook.viewUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn-outline flex items-center justify-center gap-2 text-sm"
+                  >
                     <BookOpen className="h-4 w-4" /> Read Book
-                  </button>
-                  <button className="flex items-center justify-center gap-2 rounded-full border border-ink-700 py-2 text-sm text-smoke transition-colors hover:border-grow-500 hover:text-grow-400">
+                  </a>
+                  <a
+                    href={ebook.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 rounded-full border border-ink-700 py-2 text-sm text-smoke transition-colors hover:border-grow-500 hover:text-grow-400"
+                  >
                     <Download className="h-4 w-4" /> Download PDF
-                  </button>
+                  </a>
                 </div>
               ) : (
                 <button
