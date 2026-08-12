@@ -208,10 +208,10 @@ export const courses: Course[] = [
     hours: 3,
     image: "/courses/canva-design.jpg",
     lessons: [
-      { id: "l1", title: "Canva fundamentals & brand kits", duration: "09:20", videoUrl: "" },
-      { id: "l2", title: "Social media templates", duration: "11:00", videoUrl: "" },
-      { id: "l3", title: "Presentations that don't look like slides", duration: "10:15", videoUrl: "" },
-      { id: "l4", title: "Delivering client-ready files", duration: "08:40", videoUrl: "" },
+      { id: "l1", title: "Canva fundamentals & brand kits", duration: "09:20", videoUrl: "4cmnHj3cWaU" },
+      { id: "l2", title: "Social media templates", duration: "11:00", videoUrl: "gPQaxXEIh20" },
+      { id: "l3", title: "Presentations that don't look like slides", duration: "10:15", videoUrl: "2JevBYuV08s" },
+      { id: "l4", title: "Delivering client-ready files", duration: "08:40", videoUrl: "3qBmg8DPscY" },
     ],
     resources: [
       { id: "r1", title: "Brand Kit Template", type: "template", fileUrl: "" },
@@ -261,10 +261,10 @@ export const courses: Course[] = [
     hours: 6,
     image: "/courses/facebook-ads.jpg",
     lessons: [
-      { id: "l1", title: "Ads Manager walkthrough", duration: "12:50", videoUrl: "" },
-      { id: "l2", title: "Audience targeting strategy", duration: "14:15", videoUrl: "" },
-      { id: "l3", title: "Creative testing frameworks", duration: "13:00", videoUrl: "" },
-      { id: "l4", title: "Budgeting and scaling safely", duration: "10:30", videoUrl: "" },
+      { id: "l1", title: "Ads Manager walkthrough", duration: "12:50", videoUrl: "hxZ50ohMd4Y" },
+      { id: "l2", title: "Audience targeting strategy", duration: "14:15", videoUrl: "68G40XDASaU" },
+      { id: "l3", title: "Creative testing frameworks", duration: "13:00", videoUrl: "JKhChxwkEcY" },
+      { id: "l4", title: "Budgeting and scaling safely", duration: "10:30", videoUrl: "Y0IaXBx_RJM" },
     ],
     resources: [
       { id: "r1", title: "Campaign Structure Template", type: "template", fileUrl: "" },
@@ -314,10 +314,10 @@ export const courses: Course[] = [
     hours: 9,
     image: "/courses/web-development.jpg",
     lessons: [
-      { id: "l1", title: "How websites actually work", duration: "09:40", videoUrl: "" },
-      { id: "l2", title: "HTML & CSS fundamentals", duration: "18:20", videoUrl: "" },
-      { id: "l3", title: "Building with no-code tools", duration: "14:50", videoUrl: "" },
-      { id: "l4", title: "Deploying your first site", duration: "12:10", videoUrl: "" },
+      { id: "l1", title: "How websites actually work", duration: "09:40", videoUrl: "IQpkogC7uQk" },
+      { id: "l2", title: "HTML & CSS fundamentals", duration: "18:20", videoUrl: "xLHBp0ER93k" },
+      { id: "l3", title: "Building with no-code tools", duration: "14:50", videoUrl: "8ZD-tq_b7PE" },
+      { id: "l4", title: "Deploying your first site", duration: "12:10", videoUrl: "5R6LPJo0x_c" },
     ],
     resources: [
       { id: "r1", title: "HTML/CSS Cheat Sheet", type: "pdf", fileUrl: "" },
@@ -367,10 +367,10 @@ export const courses: Course[] = [
     hours: 5,
     image: "/courses/make-money-online.jpg",
     lessons: [
-      { id: "l1", title: "Mapping the realistic options", duration: "11:20", videoUrl: "" },
-      { id: "l2", title: "Picking a path that fits your skills", duration: "09:45", videoUrl: "" },
-      { id: "l3", title: "Avoiding scams and false promises", duration: "10:30", videoUrl: "" },
-      { id: "l4", title: "Your first 30-day action plan", duration: "13:15", videoUrl: "" },
+      { id: "l1", title: "Mapping the realistic options", duration: "11:20", videoUrl: "GxaWc4qZXpc" },
+      { id: "l2", title: "Picking a path that fits your skills", duration: "09:45", videoUrl: "6UemDTbwH48" },
+      { id: "l3", title: "Avoiding scams and false promises", duration: "10:30", videoUrl: "LDZms_RJH2o" },
+      { id: "l4", title: "Your first 30-day action plan", duration: "13:15", videoUrl: "VYLCaDw4OEk" },
     ],
     resources: [
       { id: "r1", title: "30-Day Action Plan Template", type: "template", fileUrl: "" },
