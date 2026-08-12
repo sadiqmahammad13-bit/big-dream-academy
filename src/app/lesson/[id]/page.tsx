@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
-import { PlayCircle, CheckCircle2, ArrowLeft } from "lucide-react";
+import { PlayCircle, CheckCircle2, ArrowLeft, Lock } from "lucide-react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
-import { markLessonComplete } from "@/lib/firestore-helpers";
+import { markLessonComplete, getUserProfile, UserProfile } from "@/lib/firestore-helpers";
 import { getCourseById } from "@/data/courses";
 
 export default function LessonPage({ params }: { params: { id: string } }) {
@@ -23,6 +23,17 @@ function LessonContent({ courseId }: { courseId: string }) {
   const router = useRouter();
   const { user } = useAuth();
 
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [profileLoaded, setProfileLoaded] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      getUserProfile(user.uid)
+        .then(setProfile)
+        .finally(() => setProfileLoaded(true));
+    }
+  }, [user]);
+
   const requestedLessonId = searchParams.get("lesson");
   const initialIndex = Math.max(
     0,
@@ -36,15 +47,16 @@ function LessonContent({ courseId }: { courseId: string }) {
     return <p className="p-10 text-center text-smoke">Course not found.</p>;
   }
 
+  const hasPaid = Boolean(profile?.purchases && profile.purchases.length > 0);
   const activeLesson = course.lessons[activeIndex];
   const isLastLesson = activeIndex === course.lessons.length - 1;
+  // First lesson is always a free preview — everything after requires a purchase.
+  const isLocked = activeIndex > 0 && !hasPaid;
 
   async function handleMarkComplete() {
-    if (!user || saving) return;
+    if (!user || saving || isLocked) return;
     setSaving(true);
 
-    // Try to save progress to Firestore, but never let a save failure
-    // block navigation — the student should still move forward.
     try {
       await markLessonComplete(user.uid, course!.id, activeLesson.id);
     } catch (err) {
@@ -70,7 +82,22 @@ function LessonContent({ courseId }: { courseId: string }) {
             <ArrowLeft className="h-4 w-4" /> Back to course
           </Link>
 
-          {activeLesson.videoUrl ? (
+          {!profileLoaded ? (
+            <div className="flex aspect-video items-center justify-center rounded-2xl border border-ink-700 bg-ink-900">
+              <div className="h-8 w-8 animate-spin rounded-full border-2 border-ink-700 border-t-grow-500" />
+            </div>
+          ) : isLocked ? (
+            <div className="flex aspect-video flex-col items-center justify-center gap-3 rounded-2xl border border-ink-700 bg-ink-900 px-6 text-center">
+              <Lock className="h-12 w-12 text-gold-500" />
+              <p className="font-display text-lg font-semibold text-bone">This lesson is locked</p>
+              <p className="max-w-sm text-sm text-smoke">
+                You've watched the free preview lesson. Unlock the full course, quizzes, and certificate with a plan.
+              </p>
+              <Link href="/payment" className="btn-gold mt-2">
+                View plans
+              </Link>
+            </div>
+          ) : activeLesson.videoUrl ? (
             <div className="aspect-video overflow-hidden rounded-2xl border border-ink-700 bg-ink-900">
               <iframe
                 key={activeLesson.id}
@@ -88,11 +115,16 @@ function LessonContent({ courseId }: { courseId: string }) {
           )}
 
           <h1 className="mt-5 font-display text-xl font-bold text-bone">{activeLesson.title}</h1>
-          <p className="mt-1 text-sm text-smoke">{course.title} &middot; {activeLesson.duration}</p>
+          <p className="mt-1 text-sm text-smoke">
+            {course.title} &middot; {activeLesson.duration}
+            {activeIndex === 0 && <span className="ml-2 text-grow-400">&middot; Free preview</span>}
+          </p>
 
-          <button onClick={handleMarkComplete} disabled={saving} className="btn-gold mt-6 disabled:opacity-60">
-            {saving ? "Saving…" : isLastLesson ? "Finish lessons & take quiz" : "Mark complete & continue"}
-          </button>
+          {!isLocked && (
+            <button onClick={handleMarkComplete} disabled={saving} className="btn-gold mt-6 disabled:opacity-60">
+              {saving ? "Saving…" : isLastLesson ? "Finish lessons & take quiz" : "Mark complete & continue"}
+            </button>
+          )}
         </div>
 
         {/* Playlist */}
@@ -102,6 +134,7 @@ function LessonContent({ courseId }: { courseId: string }) {
             {course.lessons.map((lesson, i) => {
               const done = completed.has(lesson.id);
               const active = i === activeIndex;
+              const locked = i > 0 && !hasPaid;
               return (
                 <li key={lesson.id}>
                   <button
@@ -111,7 +144,9 @@ function LessonContent({ courseId }: { courseId: string }) {
                     }`}
                   >
                     <span className="flex items-center gap-2">
-                      {done ? (
+                      {locked ? (
+                        <Lock className="h-4 w-4 shrink-0 text-gold-500" />
+                      ) : done ? (
                         <CheckCircle2 className="h-4 w-4 shrink-0 text-grow-400" />
                       ) : (
                         <PlayCircle className="h-4 w-4 shrink-0" />
