@@ -8,6 +8,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import { useAuth } from "@/lib/auth-context";
 import { markLessonComplete, getUserProfile, UserProfile } from "@/lib/firestore-helpers";
 import { getCourseById } from "@/data/courses";
+import { getUnlockedCourseIds } from "@/data/plans";
 
 export default function LessonPage({ params }: { params: { id: string } }) {
   return (
@@ -47,11 +48,20 @@ function LessonContent({ courseId }: { courseId: string }) {
     return <p className="p-10 text-center text-smoke">Course not found.</p>;
   }
 
-  const hasPaid = Boolean(profile?.purchases && profile.purchases.length > 0);
+  // Figure out which plan(s) this student has purchased, then check
+  // whether THIS specific course is included in any of them.
+  const purchasedPlanIds = (profile?.purchases ?? [])
+    .filter((p) => p.type === "plan")
+    .map((p) => p.itemId);
+  const unlockedCourseIds = getUnlockedCourseIds(purchasedPlanIds);
+  const hasPaidForThisCourse =
+    unlockedCourseIds.has("__ALL__") || unlockedCourseIds.has(course.id);
+
   const activeLesson = course.lessons[activeIndex];
   const isLastLesson = activeIndex === course.lessons.length - 1;
-  // First lesson is always a free preview — everything after requires a purchase.
-  const isLocked = activeIndex > 0 && !hasPaid;
+  // First lesson is always a free preview — everything after requires this
+  // specific course to be covered by a purchased plan.
+  const isLocked = activeIndex > 0 && !hasPaidForThisCourse;
 
   async function handleMarkComplete() {
     if (!user || saving || isLocked) return;
@@ -91,7 +101,7 @@ function LessonContent({ courseId }: { courseId: string }) {
               <Lock className="h-12 w-12 text-gold-500" />
               <p className="font-display text-lg font-semibold text-bone">This lesson is locked</p>
               <p className="max-w-sm text-sm text-smoke">
-                You've watched the free preview lesson. Unlock the full course, quizzes, and certificate with a plan.
+                You've watched the free preview lesson. Unlock this course with a plan that includes it.
               </p>
               <Link href="/payment" className="btn-gold mt-2">
                 View plans
@@ -134,7 +144,7 @@ function LessonContent({ courseId }: { courseId: string }) {
             {course.lessons.map((lesson, i) => {
               const done = completed.has(lesson.id);
               const active = i === activeIndex;
-              const locked = i > 0 && !hasPaid;
+              const locked = i > 0 && !hasPaidForThisCourse;
               return (
                 <li key={lesson.id}>
                   <button
