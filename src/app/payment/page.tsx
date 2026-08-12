@@ -6,6 +6,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardShell from "@/components/DashboardShell";
 import { useAuth } from "@/lib/auth-context";
 import { recordPurchase } from "@/lib/firestore-helpers";
+import { plans } from "@/data/plans";
 
 declare global {
   interface Window {
@@ -23,13 +24,7 @@ declare global {
   }
 }
 
-const  PAYSTACK_PUBLIC_KEY = "pk_live_0528952d591b9b9a60aec57ce9baab779ee53402";
-
-const plans = [
-  { id: "starter", name: "Starter", price: "₦1,000", amount: 100000, perks: ["1 course", "1 eBook", "Certificate"] },
-  { id: "standard", name: "Standard", price: "₦2,000", amount: 200000, perks: ["3 courses", "eBooks included", "Certificate", "Downloads"], featured: true },
-  { id: "premium", name: "Premium", price: "₦5,000", amount: 500000, perks: ["All courses", "All eBooks", "Lifetime updates", "Premium support"] },
-];
+const PAYSTACK_PUBLIC_KEY = "pk_live_0528952d591b9b9a60aec57ce9baab779ee53402";
 
 export default function PaymentPage() {
   return (
@@ -52,6 +47,8 @@ function PaymentContent() {
 
   function handlePaymentSuccess() {
     if (!user) return;
+    // itemId is the plan ID — this is what the Lesson page checks against
+    // getUnlockedCourseIds() to decide what the student can watch.
     recordPurchase(user.uid, {
       type: "plan",
       itemId: activePlan.id,
@@ -126,7 +123,7 @@ function PaymentContent() {
         </p>
       )}
 
-      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2">
+      <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-3">
         {plans.map((plan) => (
           <button
             key={plan.id}
@@ -164,11 +161,7 @@ function PaymentContent() {
         {done ? (
           <div className="mt-5 rounded-xl border border-grow-700 bg-grow-700/10 p-4">
             <p className="text-sm font-medium text-grow-400">✓ An karɓi biyan ku!</p>
-            <p className="mt-2 text-sm text-smoke">
-              Tuntuɓe mu domin samun access:
-            </p>
-            <p className="mt-1 text-sm text-bone">WhatsApp: 08087516590</p>
-            <p className="text-sm text-bone">Email: sadiqmahammad13@gmail.com</p>
+            <p className="mt-2 text-sm text-smoke">Your plan is now active — go to any course to start learning.</p>
           </div>
         ) : (
           <button onClick={handleCheckout} disabled={processing} className="btn-gold mt-5 w-full disabled:opacity-60">
