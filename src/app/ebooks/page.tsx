@@ -24,7 +24,7 @@ declare global {
   }
 }
 
-const PAYSTACK_PUBLIC_KEY = "pk_test_46b692b386841ac8169bf05db7ffe38205423710";
+ const PAYSTACK_PUBLIC_KEY = "pk_live_0528952d591b9b9a60aec57ce9baab779ee53402";
 
 export default function EbooksPage() {
   return (
