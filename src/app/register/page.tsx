@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Sparkles } from "lucide-react";
 import { useAuth } from "@/lib/auth-context";
+import { trackRegistration } from "@/lib/meta-pixel";
 
 export default function RegisterPage() {
   const { register } = useAuth();
@@ -27,6 +28,7 @@ export default function RegisterPage() {
     setSubmitting(true);
     try {
       await register(name, email, password);
+      trackRegistration();
       router.push("/dashboard");
     } catch (err) {
       setError("Couldn't create that account. The email may already be in use.");
