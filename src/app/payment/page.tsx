@@ -6,6 +6,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardShell from "@/components/DashboardShell";
 import { useAuth } from "@/lib/auth-context";
 import { recordPurchase } from "@/lib/firestore-helpers";
+import { trackPurchase } from "@/lib/meta-pixel";
 import { plans } from "@/data/plans";
 
 declare global {
@@ -47,8 +48,6 @@ function PaymentContent() {
 
   function handlePaymentSuccess() {
     if (!user) return;
-    // itemId is the plan ID — this is what the Lesson page checks against
-    // getUnlockedCourseIds() to decide what the student can watch.
     recordPurchase(user.uid, {
       type: "plan",
       itemId: activePlan.id,
@@ -58,6 +57,7 @@ function PaymentContent() {
     })
       .catch((err) => console.error("Failed to record purchase:", err))
       .finally(() => {
+        trackPurchase(activePlan.amount);
         setProcessing(false);
         setDone(true);
       });
