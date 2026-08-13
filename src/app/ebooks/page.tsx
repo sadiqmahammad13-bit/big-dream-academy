@@ -6,6 +6,7 @@ import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardShell from "@/components/DashboardShell";
 import { useAuth } from "@/lib/auth-context";
 import { getUserProfile, grantEbookAccess, recordPurchase, UserProfile } from "@/lib/firestore-helpers";
+import { trackPurchase } from "@/lib/meta-pixel";
 import { ebooks, Ebook } from "@/data/ebooks";
 
 declare global {
@@ -61,7 +62,10 @@ function EbooksContent() {
       .then(() => getUserProfile(user.uid))
       .then((updated) => setProfile(updated))
       .catch((err) => console.error("Failed to record eBook purchase:", err))
-      .finally(() => setBuyingId(null));
+      .finally(() => {
+        trackPurchase(ebook.amount);
+        setBuyingId(null);
+      });
   }
 
   function openCheckout(ebook: Ebook) {
