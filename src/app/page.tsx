@@ -28,17 +28,19 @@ export default function LandingPage() {
         <section className="mx-auto flex max-w-6xl flex-col items-center gap-10 px-5 pb-16 pt-16 md:flex-row md:pt-24">
           <div className="max-w-xl animate-rise text-center md:text-left">
             <span className="inline-block rounded-full border border-gold-700 px-3 py-1 text-xs font-medium text-gold-400">
-              7 courses &middot; earn real skills
+              🎓 Video Lessons + Quizzes + Certificates
             </span>
             <h1 className="mt-5 font-display text-4xl font-extrabold leading-tight text-bone md:text-5xl">
-              Turn your phone into a{" "}
-              <span className="bg-gold-green bg-clip-text text-transparent">skill-earning machine</span>
+              Learn AI & Digital Skills{" "}
+              <span className="bg-gold-green bg-clip-text text-transparent">from your phone</span>
             </h1>
             <p className="mt-5 text-base text-smoke md:text-lg">
-              Big Dream Academy teaches the digital skills people are actually paid for today —
-              AI, marketing, e-commerce, and design — taught step by step, with certificates to prove it.
-              Plans start from ₦1,000.
+              7 practical courses — AI, marketing, e-commerce, and design — taught step by step,
+              with quizzes and certificates to prove what you've learned. Courses from ₦1,000.
             </p>
+            <div className="mt-6 rounded-xl border border-grow-700 bg-grow-700/10 px-4 py-3 text-sm text-grow-400">
+              ✓ Start your first lesson FREE — no payment required to try.
+            </div>
             <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row md:justify-start">
               <Link href="/register" className="btn-gold w-full sm:w-auto">
                 Start learning free <ArrowRight className="ml-2 h-4 w-4" />
@@ -95,6 +97,7 @@ export default function LandingPage() {
             <div className="text-center">
               <h2 className="font-display text-2xl font-bold text-bone md:text-3xl">Pricing</h2>
               <p className="mt-2 text-smoke">Simple, one-time plans — no hidden fees. Paid securely via Paystack.</p>
+              <p className="mt-1 text-sm text-grow-400">The first lesson of every course is free to try before you pay.</p>
             </div>
             <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-3">
               {plans.map((plan) => (
@@ -130,10 +133,10 @@ export default function LandingPage() {
         <section className="mx-auto max-w-4xl px-5 pb-24 pt-16 text-center">
           <div className="card p-10 shadow-gold">
             <h2 className="font-display text-2xl font-bold text-bone md:text-3xl">
-              Your first certificate is a few lessons away
+              Your first lesson is free — try it now
             </h2>
             <p className="mx-auto mt-3 max-w-md text-smoke">
-              Join Big Dream Academy today and start building a skill that pays.
+              Create a free account, watch your first lesson, and decide if it's for you — no payment required to start.
             </p>
             <Link href="/register" className="btn-gold mt-6 inline-flex">
               Create free account
